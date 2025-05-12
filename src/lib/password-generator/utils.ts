@@ -73,7 +73,7 @@ export function buildMnemonicStory(tokens: string[]): { sentence: string; emojis
   
   // Create emoji version
   const words = sentence.split(' ');
-  const emojiSentence = words.map(word => wordToEmoji[word] || '').filter(emoji => emoji).join(' ');
+  const emojiSentence = words.map(word => wordToEmoji[word] || '').filter(emoji => emoji).join('');
   
   return {
     sentence,
@@ -113,7 +113,7 @@ export function applyLeetTransformations(text: string): string {
     }
     
     // Add to result
-    result += leetWord + (i < words.length - 1 ? ' ' : '');
+    result += leetWord + (i < words.length - 1 ? '' : '');
   }
   
   // Add one random capitalization pivot
@@ -123,7 +123,8 @@ export function applyLeetTransformations(text: string): string {
     chars[randomIndex] = chars[randomIndex].toUpperCase();
   }
   
-  return chars.join('');
+  // Remove all spaces
+  return chars.join('').replace(/\s+/g, '');
 }
 
 // Step 4: Local Strength Evaluator
@@ -224,7 +225,13 @@ export function generatePassword(): {
     entropy: number;
     timeToCrack: string;
     strengthText: string;
-  }
+  };
+  stages: {
+    stage1: string;
+    stage2: string;
+    stage3: string;
+    stage4: string;
+  };
 } {
   // Keep generating until we get a strong enough password
   let score = 0;
@@ -238,19 +245,36 @@ export function generatePassword(): {
     strengthText: string;
   };
   
+  // Stage tracking
+  let stages = {
+    stage1: "Starting entropy generation...",
+    stage2: "Building mnemonic story...",
+    stage3: "Applying leet transformations...",
+    stage4: "Evaluating password strength..."
+  };
+  
   do {
     // Step 1: Generate random tokens
+    stages.stage1 = "Generated random tokens";
     originalWords = generateRandomTokens();
     
     // Step 2: Build mnemonic story
+    stages.stage2 = `Created story: "${originalWords.join(', ')}" → sentence`;
     story = buildMnemonicStory(originalWords);
     
     // Step 3: Apply leet transformations
+    stages.stage3 = `Applied transformations to "${story.sentence}"`;
     transformedPassword = applyLeetTransformations(story.sentence);
     
     // Step 4: Evaluate strength
     strengthEvaluation = evaluatePasswordStrength(transformedPassword);
+    stages.stage4 = `Evaluated strength: ${strengthEvaluation.score}/4 (${strengthEvaluation.strengthText})`;
     score = strengthEvaluation.score;
+    
+    // If score is too low, restart the process
+    if (score < 3) {
+      stages.stage1 = "Restarting due to low strength score...";
+    }
   } while (score < 3);
   
   return {
@@ -258,6 +282,7 @@ export function generatePassword(): {
     sentence: story.sentence,
     emojiSentence: story.emojis,
     transformedPassword,
-    strength: strengthEvaluation
+    strength: strengthEvaluation,
+    stages
   };
 }

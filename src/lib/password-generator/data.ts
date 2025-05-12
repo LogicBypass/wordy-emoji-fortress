@@ -47,7 +47,7 @@ export const wordToEmoji: Record<string, string> = {
   "honey": "🍯", "ivory": "🦷", "joker": "🃏", "karma": "☯️", "linen": "🧵",
   "maple": "🍁", "noble": "👑", "olive": "🫒", "plum": "🟣", "quark": "⚛️",
   "ruler": "📏", "storm": "⛈️", "tower": "🗼", "urban": "🏙️", "visor": "🕶️",
-  "waltz": "💃", "xenon": "⚗️"
+  "waltz": "💃"
 };
 
 // Common English templates for sentence construction

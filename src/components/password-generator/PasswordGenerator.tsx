@@ -15,8 +15,9 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { RefreshCw, List, Smile, Check } from "lucide-react";
-import { generatePassword, evaluatePasswordStrength } from "@/lib/password-generator/utils";
+import { Textarea } from "@/components/ui/textarea";
+import { RefreshCw, List, Smile, Check, ArrowRight } from "lucide-react";
+import { generatePassword, evaluatePasswordStrength, applyLeetTransformations } from "@/lib/password-generator/utils";
 import StrengthMeter from "./StrengthMeter";
 import PasswordDisplay from "./PasswordDisplay";
 import EmojiDisplay from "./EmojiDisplay";
@@ -33,6 +34,9 @@ const PasswordGenerator: React.FC = () => {
     strengthText: "Very Weak"
   });
   
+  const [customStory, setCustomStory] = useState("");
+  const [customTransformedPassword, setCustomTransformedPassword] = useState("");
+  
   const [generatedPassword, setGeneratedPassword] = useState<{
     originalWords: string[];
     sentence: string;
@@ -43,7 +47,13 @@ const PasswordGenerator: React.FC = () => {
       entropy: number;
       timeToCrack: string;
       strengthText: string;
-    }
+    };
+    stages: {
+      stage1: string;
+      stage2: string;
+      stage3: string;
+      stage4: string;
+    };
   } | null>(null);
 
   const handleGeneratePassword = async () => {
@@ -64,6 +74,13 @@ const PasswordGenerator: React.FC = () => {
     setCustomPasswordStrength(strength);
   };
   
+  const handleCustomStoryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCustomStory(e.target.value);
+    // Apply leet transformations to the custom story
+    const transformed = applyLeetTransformations(e.target.value);
+    setCustomTransformedPassword(transformed);
+  };
+  
   useEffect(() => {
     // Generate a password on first load
     handleGeneratePassword();
@@ -72,6 +89,8 @@ const PasswordGenerator: React.FC = () => {
     return () => {
       setGeneratedPassword(null);
       setCustomPassword("");
+      setCustomStory("");
+      setCustomTransformedPassword("");
     };
   }, []);
 
@@ -138,15 +157,21 @@ const PasswordGenerator: React.FC = () => {
                 {generatedPassword && (
                   <>
                     <div className="grid gap-4 md:grid-cols-2">
-                      <div>
+                      <div className="space-y-4">
                         <PasswordDisplay 
                           password={generatedPassword.sentence} 
                           title="Story Password (Original)" 
                         />
+                        <Textarea 
+                          placeholder="Type your own story here to customize"
+                          value={customStory}
+                          onChange={handleCustomStoryChange}
+                          className="h-24"
+                        />
                       </div>
                       <div>
                         <PasswordDisplay 
-                          password={generatedPassword.transformedPassword} 
+                          password={customStory ? customTransformedPassword : generatedPassword.transformedPassword} 
                           title="Final Password (With Transformations)" 
                         />
                       </div>
@@ -158,16 +183,41 @@ const PasswordGenerator: React.FC = () => {
                     
                     <div className="grid gap-4 md:grid-cols-2">
                       <PasswordInfo 
-                        entropy={generatedPassword.strength.entropy} 
-                        timeToCrack={generatedPassword.strength.timeToCrack} 
+                        entropy={customStory ? evaluatePasswordStrength(customTransformedPassword).entropy : generatedPassword.strength.entropy} 
+                        timeToCrack={customStory ? evaluatePasswordStrength(customTransformedPassword).timeToCrack : generatedPassword.strength.timeToCrack} 
                       />
                       <div>
                         <StrengthMeter 
-                          score={generatedPassword.strength.score} 
-                          strengthText={generatedPassword.strength.strengthText}
+                          score={customStory ? evaluatePasswordStrength(customTransformedPassword).score : generatedPassword.strength.score} 
+                          strengthText={customStory ? evaluatePasswordStrength(customTransformedPassword).strengthText : generatedPassword.strength.strengthText}
                         />
                       </div>
                     </div>
+
+                    {/* Algorithm Process Display */}
+                    <Card className="mt-4">
+                      <div className="bg-secondary px-4 py-2">
+                        <h3 className="font-medium text-sm">Algorithm Process</h3>
+                      </div>
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex items-center text-xs">
+                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">1</span>
+                          <p>{generatedPassword.stages.stage1}</p>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">2</span>
+                          <p>{generatedPassword.stages.stage2}</p>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">3</span>
+                          <p>{generatedPassword.stages.stage3}</p>
+                        </div>
+                        <div className="flex items-center text-xs">
+                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">4</span>
+                          <p>{generatedPassword.stages.stage4}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </>
                 )}
               </div>

@@ -15,7 +15,7 @@ const EmojiDisplay: React.FC<EmojiDisplayProps> = ({ emojis, className }) => {
       </div>
       <CardContent className="p-4">
         <div className="bg-black/20 rounded p-3 flex items-center justify-center">
-          <p className="text-2xl">{emojis}</p>
+          <p className="text-4xl tracking-wider">{emojis}</p>
         </div>
       </CardContent>
     </Card>
