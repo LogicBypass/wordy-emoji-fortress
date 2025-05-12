@@ -200,27 +200,39 @@ const PasswordGenerator: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Algorithm Process Display */}
+                    {/* Algorithm Process Display - Enhanced */}
                     <Card className="mt-4">
                       <div className="bg-secondary px-4 py-2">
-                        <h3 className="font-medium text-sm">Algorithm Process</h3>
+                        <h3 className="font-medium text-sm">4-Step Algorithmic Pipeline</h3>
                       </div>
-                      <CardContent className="p-4 space-y-2">
-                        <div className="flex items-center text-xs">
-                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">1</span>
-                          <p>{generatedPassword.stages.stage1}</p>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-center">
+                          <span className="inline-block w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-3 flex-shrink-0">1</span>
+                          <div>
+                            <p className="text-sm font-medium">Entropy & Selection Engine</p>
+                            <p className="text-xs text-muted-foreground">{generatedPassword.stages.stage1}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center text-xs">
-                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">2</span>
-                          <p>{generatedPassword.stages.stage2}</p>
+                        <div className="flex items-center">
+                          <span className="inline-block w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-3 flex-shrink-0">2</span>
+                          <div>
+                            <p className="text-sm font-medium">Mnemonic Story Builder</p>
+                            <p className="text-xs text-muted-foreground">{generatedPassword.stages.stage2}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center text-xs">
-                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">3</span>
-                          <p>{generatedPassword.stages.stage3}</p>
+                        <div className="flex items-center">
+                          <span className="inline-block w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-3 flex-shrink-0">3</span>
+                          <div>
+                            <p className="text-sm font-medium">Contextual Leet Transformer</p>
+                            <p className="text-xs text-muted-foreground">{generatedPassword.stages.stage3}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center text-xs">
-                          <span className="inline-block w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-2">4</span>
-                          <p>{generatedPassword.stages.stage4}</p>
+                        <div className="flex items-center">
+                          <span className="inline-block w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center mr-3 flex-shrink-0">4</span>
+                          <div>
+                            <p className="text-sm font-medium">Local Strength Evaluator</p>
+                            <p className="text-xs text-muted-foreground">{generatedPassword.stages.stage4}</p>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

@@ -1,4 +1,3 @@
-
 import { 
   dicewareWords, 
   emojis, 
@@ -84,6 +83,10 @@ export function buildMnemonicStory(tokens: string[]): { sentence: string; emojis
 
 // Step 3: Contextual Leet Transformer
 export function applyLeetTransformations(text: string, complexity: number = 0.5): string {
+  if (!text || text.trim() === '') {
+    return '';
+  }
+  
   // Split the text into words
   const words = text.split(' ');
   
@@ -117,15 +120,19 @@ export function applyLeetTransformations(text: string, complexity: number = 0.5)
     result += leetWord + (i < words.length - 1 ? '' : '');
   }
   
-  // Add one random capitalization pivot
-  const chars = result.split('');
-  const randomIndex = Math.floor(Math.random() * chars.length);
-  if (/[a-z]/.test(chars[randomIndex])) {
-    chars[randomIndex] = chars[randomIndex].toUpperCase();
+  // Add one random capitalization pivot if the text has content
+  if (result.length > 0) {
+    const chars = result.split('');
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    if (chars[randomIndex] && /[a-z]/.test(chars[randomIndex])) {
+      chars[randomIndex] = chars[randomIndex].toUpperCase();
+    }
+    
+    // Remove all spaces
+    return chars.join('').replace(/\s+/g, '');
   }
   
-  // Remove all spaces
-  return chars.join('').replace(/\s+/g, '');
+  return result;
 }
 
 // Step 4: Local Strength Evaluator
