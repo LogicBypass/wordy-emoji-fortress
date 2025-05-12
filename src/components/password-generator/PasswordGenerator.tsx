@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { RefreshCw, List, Smile, Check, ArrowRight } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { RefreshCw, List, Check, ArrowRight } from "lucide-react";
 import { generatePassword, evaluatePasswordStrength, applyLeetTransformations } from "@/lib/password-generator/utils";
 import StrengthMeter from "./StrengthMeter";
 import PasswordDisplay from "./PasswordDisplay";
@@ -25,7 +26,6 @@ import PasswordInfo from "./PasswordInfo";
 
 const PasswordGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [mode, setMode] = useState<"word" | "emoji">("word");
   const [customPassword, setCustomPassword] = useState("");
   const [customPasswordStrength, setCustomPasswordStrength] = useState({
     score: 0,
@@ -36,6 +36,10 @@ const PasswordGenerator: React.FC = () => {
   
   const [customStory, setCustomStory] = useState("");
   const [customTransformedPassword, setCustomTransformedPassword] = useState("");
+  
+  // Sliders
+  const [wordCount, setWordCount] = useState<number>(5);
+  const [leetComplexity, setLeetComplexity] = useState<number>(50);
   
   const [generatedPassword, setGeneratedPassword] = useState<{
     originalWords: string[];
@@ -61,7 +65,7 @@ const PasswordGenerator: React.FC = () => {
     
     // Small delay to show loading state
     setTimeout(() => {
-      const newPassword = generatePassword();
+      const newPassword = generatePassword(wordCount, leetComplexity / 100);
       setGeneratedPassword(newPassword);
       setIsGenerating(false);
     }, 600);
@@ -77,7 +81,7 @@ const PasswordGenerator: React.FC = () => {
   const handleCustomStoryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCustomStory(e.target.value);
     // Apply leet transformations to the custom story
-    const transformed = applyLeetTransformations(e.target.value);
+    const transformed = applyLeetTransformations(e.target.value, leetComplexity / 100);
     setCustomTransformedPassword(transformed);
   };
   
@@ -115,28 +119,32 @@ const PasswordGenerator: React.FC = () => {
             {/* Generate Password Tab */}
             <TabsContent value="generate" className="space-y-4">
               <div className="flex flex-col gap-4 mt-4">
-                <div className="flex items-center space-x-2">
-                  <TabsList className="h-9">
-                    <TabsTrigger 
-                      value="word"
-                      onClick={() => setMode("word")}
-                      className={mode === "word" ? "bg-primary" : ""}
-                    >
-                      <List className="h-4 w-4 mr-2" />
-                      Word Mode
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="emoji"
-                      onClick={() => setMode("emoji")}
-                      className={mode === "emoji" ? "bg-primary" : ""}
-                    >
-                      <Smile className="h-4 w-4 mr-2" />
-                      Emoji Mode
-                    </TabsTrigger>
-                  </TabsList>
-                  
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Word Count: {wordCount}</label>
+                    <Slider 
+                      value={[wordCount]} 
+                      min={3} 
+                      max={8} 
+                      step={1} 
+                      onValueChange={(value) => setWordCount(value[0])}
+                      className="mb-6"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Substitution Complexity: {leetComplexity}%</label>
+                    <Slider 
+                      value={[leetComplexity]} 
+                      min={0} 
+                      max={100} 
+                      step={10} 
+                      onValueChange={(value) => setLeetComplexity(value[0])}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end">
                   <Button 
-                    className="ml-auto" 
                     onClick={handleGeneratePassword}
                     disabled={isGenerating}
                   >
@@ -177,9 +185,7 @@ const PasswordGenerator: React.FC = () => {
                       </div>
                     </div>
                     
-                    {mode === "emoji" && (
-                      <EmojiDisplay emojis={generatedPassword.emojiSentence} />
-                    )}
+                    <EmojiDisplay emojis={generatedPassword.emojiSentence} />
                     
                     <div className="grid gap-4 md:grid-cols-2">
                       <PasswordInfo 

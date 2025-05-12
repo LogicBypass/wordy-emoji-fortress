@@ -1,3 +1,4 @@
+
 import { 
   dicewareWords, 
   emojis, 
@@ -9,14 +10,14 @@ import {
 } from './data';
 
 // Step 1: Entropy & Selection Engine
-export function generateRandomTokens(): string[] {
+export function generateRandomTokens(wordCount: number = 5): string[] {
   // Generate secure random bytes (128 bits = 16 bytes)
   const array = new Uint8Array(16);
   window.crypto.getRandomValues(array);
   
-  // Use the random bytes to select 5 words from diceware list
+  // Use the random bytes to select words from diceware list
   const tokens: string[] = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < wordCount; i++) {
     const randomIndex = Math.floor((array[i * 3] * 256 * 256 + array[i * 3 + 1] * 256 + array[i * 3 + 2]) % dicewareWords.length);
     tokens.push(dicewareWords[randomIndex]);
   }
@@ -82,7 +83,7 @@ export function buildMnemonicStory(tokens: string[]): { sentence: string; emojis
 }
 
 // Step 3: Contextual Leet Transformer
-export function applyLeetTransformations(text: string): string {
+export function applyLeetTransformations(text: string, complexity: number = 0.5): string {
   // Split the text into words
   const words = text.split(' ');
   
@@ -104,8 +105,8 @@ export function applyLeetTransformations(text: string): string {
         transform => transform.from === char.toLowerCase() && transform.condition(before, after)
       );
       
-      if (matchingTransformations.length > 0 && Math.random() < 0.3) {
-        // Apply the transformation with a 30% chance if conditions are met
+      if (matchingTransformations.length > 0 && Math.random() < complexity * 0.6) {
+        // Apply the transformation with a probability based on complexity
         leetWord += matchingTransformations[0].to;
       } else {
         leetWord += char;
@@ -215,7 +216,7 @@ export function evaluatePasswordStrength(password: string): {
 }
 
 // Main password generation pipeline
-export function generatePassword(): {
+export function generatePassword(wordCount: number = 5, complexity: number = 0.5): {
   originalWords: string[];
   sentence: string;
   emojiSentence: string;
@@ -255,16 +256,16 @@ export function generatePassword(): {
   
   do {
     // Step 1: Generate random tokens
-    stages.stage1 = "Generated random tokens";
-    originalWords = generateRandomTokens();
+    stages.stage1 = `Generated ${wordCount} random tokens`;
+    originalWords = generateRandomTokens(wordCount);
     
     // Step 2: Build mnemonic story
     stages.stage2 = `Created story: "${originalWords.join(', ')}" → sentence`;
     story = buildMnemonicStory(originalWords);
     
     // Step 3: Apply leet transformations
-    stages.stage3 = `Applied transformations to "${story.sentence}"`;
-    transformedPassword = applyLeetTransformations(story.sentence);
+    stages.stage3 = `Applied transformations (complexity: ${Math.round(complexity * 100)}%) to "${story.sentence}"`;
+    transformedPassword = applyLeetTransformations(story.sentence, complexity);
     
     // Step 4: Evaluate strength
     strengthEvaluation = evaluatePasswordStrength(transformedPassword);
