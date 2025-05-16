@@ -62,6 +62,8 @@ const PasswordGenerator: React.FC = () => {
 
   const handleGeneratePassword = async () => {
     setIsGenerating(true);
+    // Clear custom story when generating a new password
+    setCustomStory("");
     
     // Small delay to show loading state
     setTimeout(() => {
@@ -85,6 +87,27 @@ const PasswordGenerator: React.FC = () => {
     setCustomTransformedPassword(transformed);
   };
   
+  // Effect to regenerate password when wordCount changes
+  useEffect(() => {
+    if (!isGenerating && generatedPassword) {
+      handleGeneratePassword();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wordCount]);
+  
+  // Effect to regenerate transformations when leetComplexity changes
+  useEffect(() => {
+    if (customStory) {
+      const transformed = applyLeetTransformations(customStory, leetComplexity / 100);
+      setCustomTransformedPassword(transformed);
+    } else if (generatedPassword && !isGenerating) {
+      // If we have a generated password but no custom story, update its transformations
+      const newPassword = generatePassword(wordCount, leetComplexity / 100);
+      setGeneratedPassword(newPassword);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leetComplexity]);
+  
   useEffect(() => {
     // Generate a password on first load
     handleGeneratePassword();
@@ -96,6 +119,7 @@ const PasswordGenerator: React.FC = () => {
       setCustomStory("");
       setCustomTransformedPassword("");
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -167,7 +191,7 @@ const PasswordGenerator: React.FC = () => {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-4">
                         <PasswordDisplay 
-                          password={generatedPassword.sentence} 
+                          password={customStory || generatedPassword.sentence} 
                           title="Story Password (Original)" 
                         />
                         <Textarea 
@@ -185,7 +209,10 @@ const PasswordGenerator: React.FC = () => {
                       </div>
                     </div>
                     
-                    <EmojiDisplay emojis={generatedPassword.emojiSentence} />
+                    <EmojiDisplay 
+                      emojis={customStory ? "" : generatedPassword.emojiSentence} 
+                      title="Emoji Visualization"
+                    />
                     
                     <div className="grid gap-4 md:grid-cols-2">
                       <PasswordInfo 
